@@ -57,9 +57,9 @@ impl Into<api::ChannelProperties> for ChannelInfo {
                 use api::flags::*;
 
                 let mut flag = Channel::empty();
-                if self.active { flag = flag | ACTIVE }
-                if self.arrangement_type.is_left_stereo() { flag = flag | STEREO }
-                if self.arrangement_type.is_speaker_type() { flag = flag | SPEAKER }
+                if self.active { flag |= ACTIVE }
+                if self.arrangement_type.is_left_stereo() { flag |= STEREO }
+                if self.arrangement_type.is_speaker_type() { flag |= SPEAKER }
                 flag.bits()
             },
             arrangement_type: self.arrangement_type.into(),
