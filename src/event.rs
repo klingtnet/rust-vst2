@@ -20,7 +20,6 @@ pub enum Event<'a> {
         ///
         /// E.g. if the block size is 512 and this value is 123, the event will occur on sample
         /// `samples[123]`.
-        // TODO: Don't repeat this value in all event types
         delta_frames: i32,
 
         /// This midi event was created live as opposed to being played back in the sequencer.

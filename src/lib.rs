@@ -175,7 +175,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     let effect = unsafe { mem::transmute(Box::new(mem::zeroed::<AEffect>())) };
 
     let host = HostCallback::wrap(callback, effect);
-    if host.vst_version() == 0 { // TODO: Better criteria would probably be useful here...
+    if host.vst_version() == 0 {
+        // TODO: Better criteria would probably be useful here...
         return ptr::null_mut();
     }
 
@@ -287,11 +288,23 @@ mod tests {
 
     plugin_main!(TestPlugin);
 
-    fn pass_callback(_effect: *mut AEffect, _opcode: i32, _index: i32, _value: isize, _ptr: *mut c_void, _opt: f32) -> isize {
+    fn pass_callback(_effect: *mut AEffect,
+                     _opcode: i32,
+                     _index: i32,
+                     _value: isize,
+                     _ptr: *mut c_void,
+                     _opt: f32)
+                     -> isize {
         1
     }
 
-    fn fail_callback(_effect: *mut AEffect, _opcode: i32, _index: i32, _value: isize, _ptr: *mut c_void, _opt: f32) -> isize {
+    fn fail_callback(_effect: *mut AEffect,
+                     _opcode: i32,
+                     _index: i32,
+                     _value: isize,
+                     _ptr: *mut c_void,
+                     _opt: f32)
+                     -> isize {
         0
     }
 
@@ -384,6 +397,7 @@ mod tests {
         assert_eq!(aeffect.uniqueId, 5678);
         assert_eq!(aeffect.version, 1234);
         assert_fn_eq!(aeffect.processReplacing, interfaces::process_replacing);
-        assert_fn_eq!(aeffect.processReplacingF64, interfaces::process_replacing_f64);
+        assert_fn_eq!(aeffect.processReplacingF64,
+                      interfaces::process_replacing_f64);
     }
 }

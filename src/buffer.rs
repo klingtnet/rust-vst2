@@ -30,7 +30,12 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
 
     /// Create an `AudioBuffer` from raw pointers. Only really useful for interacting with the VST
     /// API.
-    pub unsafe fn from_raw(inputs_raw: *mut *mut T, outputs_raw: *mut *mut T, num_inputs: usize, num_outputs: usize, samples: usize) -> AudioBuffer<'a, T> {
+    pub unsafe fn from_raw(inputs_raw: *mut *mut T,
+                           outputs_raw: *mut *mut T,
+                           num_inputs: usize,
+                           num_outputs: usize,
+                           samples: usize)
+                           -> AudioBuffer<'a, T> {
         let inputs =
             // Create a slice of type &mut [*mut f32]
             slice::from_raw_parts_mut(inputs_raw, num_inputs).iter()
@@ -105,8 +110,7 @@ mod tests {
         let mut out1 = vec![0.0; SIZE];
         let mut out2 = out1.clone();
 
-        let buffer = AudioBuffer::new(vec![&mut in1, &mut in2],
-                                      vec![&mut out1, &mut out2]);
+        let buffer = AudioBuffer::new(vec![&mut in1, &mut in2], vec![&mut out1, &mut out2]);
 
         for (input, output) in buffer.zip() {
             input.into_iter()
@@ -131,7 +135,9 @@ mod tests {
         let buffer = unsafe {
             AudioBuffer::from_raw(vec![in1.as_mut_ptr(), in2.as_mut_ptr()].as_mut_ptr(),
                                   vec![out1.as_mut_ptr(), out2.as_mut_ptr()].as_mut_ptr(),
-                                  2, 2, SIZE)
+                                  2,
+                                  2,
+                                  SIZE)
         };
 
         for (input, output) in buffer.zip() {

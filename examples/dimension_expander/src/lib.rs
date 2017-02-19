@@ -1,4 +1,5 @@
-#[macro_use] extern crate vst2;
+#[macro_use]
+extern crate vst2;
 extern crate time;
 
 use vst2::plugin::{Category, Info, Plugin};
@@ -120,16 +121,17 @@ impl Plugin for DimensionExpander {
         match index {
             0 => format!("{}", (self.size * 1000.0) as isize),
             1 => format!("{:.1}%", self.dry_wet * 100.0),
-            _ => "".to_string()
+            _ => "".to_string(),
         }
     }
 
     fn get_parameter_name(&self, index: i32) -> String {
         match index {
-            0 => "Size",
-            1 => "Dry/Wet",
-            _ => "",
-        }.to_string()
+                0 => "Size",
+                1 => "Dry/Wet",
+                _ => "",
+            }
+            .to_string()
     }
 
     fn set_parameter(&mut self, index: i32, val: f32) {
@@ -150,12 +152,12 @@ impl Plugin for DimensionExpander {
 
         // Iterate over inputs as (&f32, &f32)
         let stereo_in = match inputs.split_at(1) {
-            (l, r) => l[0].iter().zip(r[0].iter())
+            (l, r) => l[0].iter().zip(r[0].iter()),
         };
 
         // Iterate over outputs as (&mut f32, &mut f32)
         let stereo_out = match outputs.split_at_mut(1) {
-            (l, r) => l[0].iter_mut().zip(r[0].iter_mut())
+            (l, r) => l[0].iter_mut().zip(r[0].iter_mut()),
         };
 
         // Zip and process
@@ -180,9 +182,7 @@ impl Plugin for DimensionExpander {
                     let offset = 0.25 * (n % 4) as f64;
 
                     // Sine wave volume LFO
-                    let lfo = (
-                        (time_s * LFO_FREQ + offset) * PI * 2.0
-                    ).sin() as f32;
+                    let lfo = ((time_s * LFO_FREQ + offset) * PI * 2.0).sin() as f32;
 
                     let wet = self.dry_wet * WET_MULT;
                     let mono = (left_old + right_old) / 2.0;

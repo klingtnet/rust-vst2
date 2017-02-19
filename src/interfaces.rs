@@ -15,7 +15,11 @@ use host::Host;
 use event::Event;
 
 /// Deprecated process function.
-pub fn process_deprecated(_effect: *mut AEffect, _inputs_raw: *mut *mut f32, _outputs_raw: *mut *mut f32, _samples: i32) { }
+pub fn process_deprecated(_effect: *mut AEffect,
+                          _inputs_raw: *mut *mut f32,
+                          _outputs_raw: *mut *mut f32,
+                          _samples: i32) {
+}
 
 /// VST2.4 replacing function.
 pub fn process_replacing(effect: *mut AEffect, inputs_raw: *mut *mut f32, outputs_raw: *mut *mut f32, samples: i32) {
@@ -34,7 +38,10 @@ pub fn process_replacing(effect: *mut AEffect, inputs_raw: *mut *mut f32, output
 }
 
 /// VST2.4 replacing function with `f64` values.
-pub fn process_replacing_f64(effect: *mut AEffect, inputs_raw: *mut *mut f64, outputs_raw: *mut *mut f64, samples: i32) {
+pub fn process_replacing_f64(effect: *mut AEffect,
+                             inputs_raw: *mut *mut f64,
+                             outputs_raw: *mut *mut f64,
+                             samples: i32) {
     let mut plugin = unsafe { (*effect).get_plugin() };
 
     if plugin.get_info().f64_precision {
@@ -91,15 +98,9 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             copy_string(&plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        OpCode::GetParameterLabel => {
-            copy_string(&plugin.get_parameter_label(index), MAX_PARAM_STR_LEN)
-        }
-        OpCode::GetParameterDisplay => {
-            copy_string(&plugin.get_parameter_text(index), MAX_PARAM_STR_LEN)
-        }
-        OpCode::GetParameterName => {
-            copy_string(&plugin.get_parameter_name(index), MAX_PARAM_STR_LEN)
-        }
+        OpCode::GetParameterLabel => copy_string(&plugin.get_parameter_label(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterDisplay => copy_string(&plugin.get_parameter_text(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterName => copy_string(&plugin.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
         OpCode::SetSampleRate => plugin.set_sample_rate(opt),
         OpCode::SetBlockSize => plugin.set_block_size(value as i64),
@@ -119,13 +120,12 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 unsafe {
                     // Given a Rect** structure
                     // TODO: Investigate whether we are given a valid Rect** pointer already
-                    *(ptr as *mut *mut c_void) =
-                        mem::transmute(Box::new(Rect {
-                            left: pos.0 as i16, // x coord of position
-                            top: pos.1 as i16, // y coord of position
-                            right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
-                            bottom: (pos.1 + size.1) as i16 // y coord of pos + y coord of size
-                        }));
+                    *(ptr as *mut *mut c_void) = mem::transmute(Box::new(Rect {
+                        left: pos.0 as i16, // x coord of position
+                        top: pos.1 as i16, // y coord of position
+                        right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
+                        bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
+                    }));
                 }
             }
         }
@@ -185,9 +185,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             plugin.process_events(events);
         }
         OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
-        OpCode::StringToParameter => {
-            return plugin.string_to_parameter(index, read_string(ptr)) as isize
-        }
+        OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string(ptr)) as isize,
 
         OpCode::GetPresetName => copy_string(&plugin.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
@@ -262,7 +260,11 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         _ => {
             warn!("Unimplemented opcode ({:?})", opcode);
-            trace!("Arguments; index: {}, value: {}, ptr: {:?}, opt: {}", index, value, ptr, opt);
+            trace!("Arguments; index: {}, value: {}, ptr: {:?}, opt: {}",
+                   index,
+                   value,
+                   ptr,
+                   opt);
         }
     }
 
@@ -316,7 +318,11 @@ pub fn host_dispatch(host: &mut Host,
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
             trace!("Arguments; effect: {:?}, index: {}, value: {}, ptr: {:?}, opt: {}",
-                    effect, index, value, ptr, opt);
+                   effect,
+                   index,
+                   value,
+                   ptr,
+                   opt);
         }
     }
     0
@@ -363,9 +369,7 @@ pub fn process_events<F>(events: Vec<Event>, callback: F)
     // the box again from the raw pointer so that it can be properly dropped.
     for (event, out) in events.iter().zip(send_events.iter_mut()) {
         *out = match *event {
-            Event::Midi { data, delta_frames, live,
-                          note_length, note_offset,
-                          detune, note_off_velocity } => {
+            Event::Midi { data, delta_frames, live, note_length, note_offset, detune, note_off_velocity } => {
                 Box::into_raw(Box::new(api::MidiEvent {
                     event_type: api::EventType::Midi,
                     byte_size: mem::size_of::<api::MidiEvent>() as i32,
