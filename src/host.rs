@@ -663,7 +663,7 @@ impl Plugin for PluginInstance {
 ///
 /// The issue with this approach is that if 2 plugins are simultaneously loaded with 2 different
 /// host instances, this might fail as one host may receive a pointer to the other one. In practice
-/// this is a rare situation as you normally won't have 2 seperate host instances loading at once.
+/// this is a rare situation as you normally won't have 2 separate host instances loading at once.
 ///
 /// [reserved field]: ../api/struct.AEffect.html#structfield.reserved1
 static mut load_pointer: *mut c_void = 0 as *mut c_void;

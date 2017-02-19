@@ -400,7 +400,7 @@ pub struct Events {
     pub events: [*mut Event; 2],
 }
 
-/// The type of event that has occured. See `api::Event.event_type`.
+/// The type of event that has occurred. See `api::Event.event_type`.
 #[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum EventType {
