@@ -164,7 +164,7 @@ macro_rules! plugin_main {
     }
 }
 
-/// Initializes a VST plugin and returns a raw pointer to an AEffect struct.
+/// Initializes a VST plugin and returns a raw pointer to an `AEffect` struct.
 #[doc(hidden)]
 pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     // Create a Box containing a zeroed AEffect. This is transmuted into a *mut pointer so that it

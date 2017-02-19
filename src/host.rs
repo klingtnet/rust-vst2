@@ -656,7 +656,7 @@ impl Plugin for PluginInstance {
 /// HACK: a pointer to store the host so that it can be accessed from the `callback_wrapper`
 /// function passed to the plugin.
 ///
-/// When the plugin is being loaded, a `Box<Arc<Mutex<T>>>` is transmuted to a *mut c_void pointer
+/// When the plugin is being loaded, a `Box<Arc<Mutex<T>>>` is transmuted to a `*mut c_void` pointer
 /// and placed here. When the plugin calls the callback during initialization, the host refers to
 /// this pointer to get a handle to the Host. After initialization, this pointer is invalidated and
 /// the host pointer is placed into a [reserved field] in the instance `AEffect` struct.
