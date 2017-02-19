@@ -19,3 +19,4 @@ Cargo.lock
 Session.vim
 .netrwhist
 *~
+*.rs.bk
