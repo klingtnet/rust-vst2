@@ -136,7 +136,7 @@ pub struct AEffect {
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
     pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
-        mem::transmute::<_, &mut Box<Plugin>>(self.object)
+        &mut *(self.object as *mut Box<Plugin>)
     }
 
     /// Drop the Plugin object. Only works for plugins created using this library.
