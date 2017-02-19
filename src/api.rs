@@ -18,6 +18,7 @@ pub mod consts {
     pub const MAX_PRODUCT_STR_LEN: size_t = 64;
     pub const MAX_VENDOR_STR_LEN: size_t = 64;
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
     pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
                                ('s' as i32) << 16 |
