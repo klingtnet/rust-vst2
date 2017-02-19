@@ -1,0 +1,3 @@
+# rustfmt --config-help
+max_width=120
+ideal_width=100
