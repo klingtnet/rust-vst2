@@ -65,7 +65,6 @@ pub struct AEffect {
     /// Get value of automatable parameter.
     pub getParameter: GetParameterProc,
 
-
     /// Number of programs (Presets).
     pub numPrograms: i32,
 
@@ -77,7 +76,6 @@ pub struct AEffect {
 
     /// Number of audio outputs.
     pub numOutputs: i32,
-
 
     /// Bitmask made of values from api::flags.
     ///
@@ -99,7 +97,6 @@ pub struct AEffect {
     /// This value should be initially in a resume state.
     pub initialDelay: i32,
 
-
     /// Deprecated unused member.
     pub _realQualities: i32,
 
@@ -108,7 +105,6 @@ pub struct AEffect {
 
     /// Deprecated unused member.
     pub _ioRatio: f32,
-
 
     /// Void pointer usable by api to store object data.
     pub object: *mut c_void,
@@ -130,7 +126,7 @@ pub struct AEffect {
     pub processReplacingF64: ProcessProcF64,
 
     /// Reserved for future use (please zero).
-    pub future: [u8; 56]
+    pub future: [u8; 56],
 }
 
 impl AEffect {
@@ -162,7 +158,7 @@ pub struct ChannelProperties {
     pub short_name: [u8; MAX_SHORT_LABEL as usize],
 
     /// Reserved for future use.
-    pub future: [u8; 48]
+    pub future: [u8; 48],
 }
 
 /// Tells the host how the channels are intended to be used in the plugin. Only useful for some
@@ -253,7 +249,7 @@ pub enum SpeakerArrangementType {
 pub enum Supported {
     Yes,
     Maybe,
-    No
+    No,
 }
 
 impl Supported {
@@ -262,10 +258,10 @@ impl Supported {
         use self::Supported::*;
 
         match val {
-             1 => Some(Yes),
-             0 => Some(Maybe),
+            1 => Some(Yes),
+            0 => Some(Maybe),
             -1 => Some(No),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -278,7 +274,7 @@ impl Into<isize> for Supported {
         match self {
             Yes => 1,
             Maybe => 0,
-            No => -1
+            No => -1,
         }
     }
 }
@@ -328,7 +324,7 @@ pub enum FileSelectCommand {
 /// Format to select files.
 pub enum FileSelectType {
     /// Regular file selector.
-    Regular
+    Regular,
 }
 
 /// File type descriptor.
@@ -381,7 +377,7 @@ pub struct FileSelect {
     /// Reserved by host.
     pub reserved: isize,
     /// Reserved for future use.
-    pub future: [u8; 116]
+    pub future: [u8; 116],
 }
 
 /// A struct which contains events.
@@ -482,7 +478,7 @@ pub struct Event {
     ///
     /// The actual size of the data may vary as this type is not guaranteed to be the same size as
     /// the other event types.
-    pub _reserved: [u8; 16]
+    pub _reserved: [u8; 16],
 }
 
 /// A midi event.
@@ -502,7 +498,6 @@ pub struct MidiEvent {
 
     /// See `flags::MidiFlags`.
     pub flags: i32,
-
 
     /// Length in sample frames of entire note if available, otherwise 0.
     pub note_length: i32,
@@ -549,7 +544,6 @@ pub struct SysExEvent {
 
     /// Generic flags, none defined in VST api yet.
     pub _flags: i32,
-
 
     /// Size of payload in bytes.
     pub data_size: i32,

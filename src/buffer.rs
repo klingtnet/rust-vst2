@@ -109,12 +109,13 @@ mod tests {
                                       vec![&mut out1, &mut out2]);
 
         for (input, output) in buffer.zip() {
-            input.into_iter().zip(output.into_iter())
-            .fold(0, |acc, (input, output)| {
-                assert_eq!(*input - acc as f32, 0.0);
-                assert_eq!(*output, 0.0);
-                acc + 1
-            });
+            input.into_iter()
+                .zip(output.into_iter())
+                .fold(0, |acc, (input, output)| {
+                    assert_eq!(*input - acc as f32, 0.0);
+                    assert_eq!(*output, 0.0);
+                    acc + 1
+                });
         }
     }
 
@@ -134,12 +135,13 @@ mod tests {
         };
 
         for (input, output) in buffer.zip() {
-            input.into_iter().zip(output.into_iter())
-            .fold(0, |acc, (input, output)| {
-                assert_eq!(*input - acc as f32, 0.0);
-                assert_eq!(*output, 0.0);
-                acc + 1
-            });
+            input.into_iter()
+                .zip(output.into_iter())
+                .fold(0, |acc, (input, output)| {
+                    assert_eq!(*input - acc as f32, 0.0);
+                    assert_eq!(*output, 0.0);
+                    acc + 1
+                });
         }
     }
 }

@@ -71,8 +71,16 @@ impl<'a> From<api::Event> for Event<'a> {
             Midi => {
                 let event: api::MidiEvent = unsafe { mem::transmute(event) };
 
-                let length = if event.note_length > 0 { Some(event.note_length) } else { None };
-                let offset = if event.note_offset > 0 { Some(event.note_offset) } else { None };
+                let length = if event.note_length > 0 {
+                    Some(event.note_length)
+                } else {
+                    None
+                };
+                let offset = if event.note_offset > 0 {
+                    Some(event.note_offset)
+                } else {
+                    None
+                };
                 let flags = flags::MidiEvent::from_bits(event.flags).unwrap();
 
                 Event::Midi {
@@ -82,20 +90,22 @@ impl<'a> From<api::Event> for Event<'a> {
                     note_length: length,
                     note_offset: offset,
                     detune: event.detune,
-                    note_off_velocity: event.note_off_velocity
+                    note_off_velocity: event.note_off_velocity,
                 }
             }
 
-            SysEx => Event::SysEx {
-                payload: unsafe {
-                    // We can safely transmute the event pointer to a `SysExEvent` pointer as
-                    // event_type refers to a `SysEx` type.
-                    let event: &api::SysExEvent = mem::transmute(&event);
-                    slice::from_raw_parts(event.system_data, event.data_size as usize)
-                },
+            SysEx => {
+                Event::SysEx {
+                    payload: unsafe {
+                        // We can safely transmute the event pointer to a `SysExEvent` pointer as
+                        // event_type refers to a `SysEx` type.
+                        let event: &api::SysExEvent = mem::transmute(&event);
+                        slice::from_raw_parts(event.system_data, event.data_size as usize)
+                    },
 
-                delta_frames: event.delta_frames
-            },
+                    delta_frames: event.delta_frames,
+                }
+            }
 
             _ => Event::Deprecated(event),
         }

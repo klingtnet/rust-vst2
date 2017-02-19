@@ -93,8 +93,10 @@
 extern crate libc;
 extern crate num_traits;
 extern crate libloading;
-#[macro_use] extern crate log;
-#[macro_use] extern crate bitflags;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate bitflags;
 
 use std::{ptr, mem};
 
@@ -182,68 +184,70 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     let info = plugin.get_info().clone();
 
     // Update AEffect in place
-    unsafe { *effect = AEffect {
-        magic: VST_MAGIC,
-        dispatcher: interfaces::dispatch, // fn pointer
+    unsafe {
+        *effect = AEffect {
+            magic: VST_MAGIC,
+            dispatcher: interfaces::dispatch, // fn pointer
 
-        _process: interfaces::process_deprecated, // fn pointer
+            _process: interfaces::process_deprecated, // fn pointer
 
-        setParameter: interfaces::set_parameter, // fn pointer
-        getParameter: interfaces::get_parameter, // fn pointer
+            setParameter: interfaces::set_parameter, // fn pointer
+            getParameter: interfaces::get_parameter, // fn pointer
 
-        numPrograms: info.presets,
-        numParams: info.parameters,
-        numInputs: info.inputs,
-        numOutputs: info.outputs,
+            numPrograms: info.presets,
+            numParams: info.parameters,
+            numInputs: info.inputs,
+            numOutputs: info.outputs,
 
-        flags: {
-            use api::flags::*;
+            flags: {
+                use api::flags::*;
 
-            let mut flag = CAN_REPLACING;
+                let mut flag = CAN_REPLACING;
 
-            if info.f64_precision {
-                flag |= CAN_DOUBLE_REPLACING;
-            }
+                if info.f64_precision {
+                    flag |= CAN_DOUBLE_REPLACING;
+                }
 
-            if plugin.get_editor().is_some() {
-                flag |= HAS_EDITOR;
-            }
+                if plugin.get_editor().is_some() {
+                    flag |= HAS_EDITOR;
+                }
 
-            if info.preset_chunks {
-                flag |= PROGRAM_CHUNKS;
-            }
+                if info.preset_chunks {
+                    flag |= PROGRAM_CHUNKS;
+                }
 
-            if let plugin::Category::Synth = info.category {
-                flag |= IS_SYNTH;
-            }
+                if let plugin::Category::Synth = info.category {
+                    flag |= IS_SYNTH;
+                }
 
-            if info.silent_when_stopped {
-                flag |= NO_SOUND_IN_STOP;
-            }
+                if info.silent_when_stopped {
+                    flag |= NO_SOUND_IN_STOP;
+                }
 
-            flag.bits()
-        },
+                flag.bits()
+            },
 
-        reserved1: 0,
-        reserved2: 0,
+            reserved1: 0,
+            reserved2: 0,
 
-        initialDelay: info.initial_delay,
+            initialDelay: info.initial_delay,
 
-        _realQualities: 0,
-        _offQualities: 0,
-        _ioRatio: 0.0,
+            _realQualities: 0,
+            _offQualities: 0,
+            _ioRatio: 0.0,
 
-        object: mem::transmute(Box::new(Box::new(plugin) as Box<Plugin>)),
-        user: ptr::null_mut(),
+            object: mem::transmute(Box::new(Box::new(plugin) as Box<Plugin>)),
+            user: ptr::null_mut(),
 
-        uniqueId: info.unique_id,
-        version: info.version,
+            uniqueId: info.unique_id,
+            version: info.version,
 
-        processReplacing: interfaces::process_replacing, // fn pointer
-        processReplacingF64: interfaces::process_replacing_f64, //fn pointer
+            processReplacing: interfaces::process_replacing, // fn pointer
+            processReplacingF64: interfaces::process_replacing_f64, //fn pointer
 
-        future: [0u8; 56]
-    }};
+            future: [0u8; 56],
+        }
+    };
     effect
 }
 
@@ -320,7 +324,9 @@ mod tests {
 
         impl Drop for TestPlugin {
             fn drop(&mut self) {
-                unsafe { DROP_TEST = true; }
+                unsafe {
+                    DROP_TEST = true;
+                }
             }
         }
 

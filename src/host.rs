@@ -177,7 +177,7 @@ pub enum OpCode {
     /// [return]: 1 if supported.
     _GetChunkFile,
     /// Deprecated.
-    _GetInputSpeakerArrangement
+    _GetInputSpeakerArrangement,
 }
 impl_clike!(OpCode);
 
@@ -245,7 +245,7 @@ impl Error for PluginLoadError {
             InvalidPath => "Could not open the requested path",
             NotAPlugin => "The given path does not contain a VST2.4 compatible library",
             InstanceFailed => "Failed to create a plugin instance",
-            InvalidApiVersion => "The plugin API version is not compatible with this library"
+            InvalidApiVersion => "The plugin API version is not compatible with this library",
         }
     }
 }
@@ -321,17 +321,17 @@ impl<T: Host> PluginLoader<T> {
         // Try loading the library at the given path
         let lib = match Library::new(path) {
             Ok(l) => l,
-            Err(_) => return Err(PluginLoadError::InvalidPath)
+            Err(_) => return Err(PluginLoadError::InvalidPath),
         };
 
         Ok(PluginLoader {
             main: unsafe {
-                      // Search the library for the VSTAPI entry point
-                      match lib.get(b"VSTPluginMain") {
-                          Ok(s) => *s,
-                          _ => return Err(PluginLoadError::NotAPlugin)
-                      }
-                  },
+                // Search the library for the VSTAPI entry point
+                match lib.get(b"VSTPluginMain") {
+                    Ok(s) => *s,
+                    _ => return Err(PluginLoadError::NotAPlugin),
+                }
+            },
             lib: Arc::new(lib),
             host: host,
         })
@@ -361,10 +361,7 @@ impl<T: Host> PluginLoader<T> {
             (*effect).reserved1 = Box::into_raw(Box::new(self.host.clone())) as isize;
         }
 
-        let instance = PluginInstance::new(
-            effect,
-            self.lib.clone()
-        );
+        let instance = PluginInstance::new(effect, self.lib.clone());
 
         let api_ver = instance.dispatch(plugin::OpCode::GetApiVersion, 0, 0, ptr::null_mut(), 0.0);
         if api_ver >= 2400 {
@@ -383,7 +380,7 @@ impl PluginInstance {
         let mut plug = PluginInstance {
             effect: effect,
             lib: lib,
-            info: Default::default()
+            info: Default::default(),
         };
 
         unsafe {
@@ -425,9 +422,7 @@ impl PluginInstance {
                 ptr: *mut c_void,
                 opt: f32)
                 -> isize {
-        let dispatcher = unsafe {
-            (*self.effect).dispatcher
-        };
+        let dispatcher = unsafe { (*self.effect).dispatcher };
         if (dispatcher as *mut u8).is_null() {
             panic!("Plugin was not loaded correctly.");
         }
@@ -508,15 +503,11 @@ impl Plugin for PluginInstance {
     }
 
     fn get_parameter(&self, index: i32) -> f32 {
-        unsafe {
-            ((*self.effect).getParameter)(self.effect, index)
-        }
+        unsafe { ((*self.effect).getParameter)(self.effect, index) }
     }
 
     fn set_parameter(&mut self, index: i32, value: f32) {
-        unsafe {
-            ((*self.effect).setParameter)(self.effect, index, value)
-        }
+        unsafe { ((*self.effect).setParameter)(self.effect, index, value) }
     }
 
     fn can_be_automated(&self, index: i32) -> bool {
@@ -553,9 +544,8 @@ impl Plugin for PluginInstance {
 
     fn can_do(&self, can_do: plugin::CanDo) -> Supported {
         let s: String = can_do.into();
-        Supported::from(
-            self.write_string(plugin::OpCode::CanDo, 0, 0, &s, 0.0)
-        ).expect("Invalid response received when querying plugin CanDo")
+        Supported::from(self.write_string(plugin::OpCode::CanDo, 0, 0, &s, 0.0))
+            .expect("Invalid response received when querying plugin CanDo")
     }
 
     fn get_tail_size(&self) -> isize {
@@ -582,24 +572,17 @@ impl Plugin for PluginInstance {
         let mut outputs: Vec<*mut f64> = outputs.into_iter().map(|s| s.as_mut_ptr()).collect();
 
         unsafe {
-            ((*self.effect).processReplacingF64)
-                (self.effect, inputs.as_mut_ptr(), outputs.as_mut_ptr(), frames as i32)
+            ((*self.effect).processReplacingF64)(self.effect,
+                                                 inputs.as_mut_ptr(),
+                                                 outputs.as_mut_ptr(),
+                                                 frames as i32)
         }
     }
 
     fn process_events(&mut self, events: Vec<Event>) {
-        interfaces::process_events(
-            events,
-            |ptr| {
-                self.dispatch(
-                    plugin::OpCode::ProcessEvents,
-                    0,
-                    0,
-                    ptr,
-                    0.0
-                );
-            }
-        );
+        interfaces::process_events(events, |ptr| {
+            self.dispatch(plugin::OpCode::ProcessEvents, 0, 0, ptr, 0.0);
+        });
     }
 
     // TODO: Editor
@@ -681,8 +664,8 @@ fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
             let host = &mut *host.lock().unwrap();
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
-        // In this case, the plugin is still undergoing initialization and so `LOAD_POINTER` is
-        // dereferenced
+            // In this case, the plugin is still undergoing initialization and so `LOAD_POINTER` is
+            // dereferenced
         } else {
             // Used only during the plugin initialization
             let host = LOAD_POINTER as *const Arc<Mutex<T>>;

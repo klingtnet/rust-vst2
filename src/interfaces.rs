@@ -70,12 +70,10 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
     let mut plugin = unsafe { (*effect).get_plugin() };
 
     // Copy a string into the `ptr` buffer
-    let copy_string = |string: &String, max: size_t| {
-        unsafe {
-            libc::strncpy(ptr as *mut c_char,
-                          CString::new(string.as_bytes()).unwrap().as_ptr(),
-                          max);
-        }
+    let copy_string = |string: &String, max: size_t| unsafe {
+        libc::strncpy(ptr as *mut c_char,
+                      CString::new(string.as_bytes()).unwrap().as_ptr(),
+                      max);
     };
 
     match opcode {
@@ -93,9 +91,15 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             copy_string(&plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        OpCode::GetParameterLabel => copy_string(&plugin.get_parameter_label(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterDisplay => copy_string(&plugin.get_parameter_text(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterName => copy_string(&plugin.get_parameter_name(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterLabel => {
+            copy_string(&plugin.get_parameter_label(index), MAX_PARAM_STR_LEN)
+        }
+        OpCode::GetParameterDisplay => {
+            copy_string(&plugin.get_parameter_text(index), MAX_PARAM_STR_LEN)
+        }
+        OpCode::GetParameterName => {
+            copy_string(&plugin.get_parameter_name(index), MAX_PARAM_STR_LEN)
+        }
 
         OpCode::SetSampleRate => plugin.set_sample_rate(opt),
         OpCode::SetBlockSize => plugin.set_block_size(value as i64),
@@ -154,8 +158,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             // u8 array to **void ptr
             // TODO: Release the allocated memory for the chunk in resume / suspend event
             unsafe {
-                *(ptr as *mut *mut c_void) =
-                    chunks.into_boxed_slice().as_ptr() as *mut c_void;
+                *(ptr as *mut *mut c_void) = chunks.into_boxed_slice().as_ptr() as *mut c_void;
             }
 
             return len;
@@ -175,14 +178,16 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             let events: Vec<Event> = unsafe {
                 // Create a slice of type &mut [*mut Event]
                 slice::from_raw_parts(&(*events).events[0], (*events).num_events as usize)
-                // Deref and clone each event to get a slice
-                .iter().map(|item| Event::from(**item)).collect()
+                    // Deref and clone each event to get a slice
+                    .iter().map(|item| Event::from(**item)).collect()
             };
 
             plugin.process_events(events);
         }
         OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
-        OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string(ptr)) as isize,
+        OpCode::StringToParameter => {
+            return plugin.string_to_parameter(index, read_string(ptr)) as isize
+        }
 
         OpCode::GetPresetName => copy_string(&plugin.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
@@ -213,14 +218,22 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::CanDo => {
             let can_do: CanDo = match read_string(ptr).parse() {
                 Ok(c) => c,
-                Err(e) => { warn!("{}", e); return 0; }
+                Err(e) => {
+                    warn!("{}", e);
+                    return 0;
+                }
             };
             return plugin.can_do(can_do).into();
         }
-        OpCode::GetTailSize => if plugin.get_tail_size() == 0 { return 1; } else { return plugin.get_tail_size() },
+        OpCode::GetTailSize => {
+            if plugin.get_tail_size() == 0 {
+                return 1;
+            } else {
+                return plugin.get_tail_size();
+            }
+        }
 
         //OpCode::GetParamInfo => { /*TODO*/ }
-
         OpCode::GetApiVersion => return 2400,
 
         OpCode::EditorKeyDown => {
@@ -228,7 +241,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8
+                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
                 });
             }
         }
@@ -237,7 +250,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8
+                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
                 });
             }
         }
@@ -262,16 +275,15 @@ pub fn host_dispatch(host: &mut Host,
                      index: i32,
                      value: isize,
                      ptr: *mut c_void,
-                     opt: f32) -> isize {
+                     opt: f32)
+                     -> isize {
     use host::OpCode;
 
     // Copy a string into the `ptr` buffer
-    let copy_string = |string: &String, max: size_t| {
-        unsafe {
-            libc::strncpy(ptr as *mut c_char,
-                          CString::new(string.as_bytes()).unwrap().as_ptr(),
-                          max);
-        }
+    let copy_string = |string: &String, max: size_t| unsafe {
+        libc::strncpy(ptr as *mut c_char,
+                      CString::new(string.as_bytes()).unwrap().as_ptr(),
+                      max);
     };
 
     match OpCode::from(opcode) {
@@ -281,7 +293,6 @@ pub fn host_dispatch(host: &mut Host,
         OpCode::Idle => host.idle(),
 
         // ...
-
         OpCode::CanDo => {
             info!("Plugin is asking if host can: {}.", read_string(ptr));
         }
@@ -295,8 +306,8 @@ pub fn host_dispatch(host: &mut Host,
             let events: Vec<Event> = unsafe {
                 // Create a slice of type &mut [*mut Event]
                 slice::from_raw_parts(&(*events).events[0], (*events).num_events as usize)
-                // Deref and clone each event to get a slice
-                .iter().map(|item| Event::from(**item)).collect()
+                    // Deref and clone each event to get a slice
+                    .iter().map(|item| Event::from(**item)).collect()
             };
 
             host.process_events(events);
@@ -313,9 +324,7 @@ pub fn host_dispatch(host: &mut Host,
 
 // Read a string from the `ptr` buffer
 fn read_string(ptr: *mut c_void) -> String {
-    String::from_utf8_lossy(
-        unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }
-    ).into_owned()
+    String::from_utf8_lossy(unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }).into_owned()
 }
 
 /// Translate `Vec<Event>` into `&api::Events` and use via a callback.
@@ -369,7 +378,7 @@ pub fn process_events<F>(events: Vec<Event>, callback: F)
                     detune: detune,
                     note_off_velocity: note_off_velocity,
                     _reserved1: 0,
-                    _reserved2: 0
+                    _reserved2: 0,
                 })) as *mut api::Event
             }
             Event::SysEx { payload, delta_frames } => {
@@ -384,7 +393,7 @@ pub fn process_events<F>(events: Vec<Event>, callback: F)
                     _reserved2: 0,
                 })) as *mut api::Event
             }
-            Event::Deprecated(e) => Box::into_raw(Box::new(e))
+            Event::Deprecated(e) => Box::into_raw(Box::new(e)),
         };
     }
 
