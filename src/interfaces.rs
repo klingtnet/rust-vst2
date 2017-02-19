@@ -73,7 +73,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
     let copy_string = |string: &String, max: size_t| {
         unsafe {
             libc::strncpy(ptr as *mut c_char,
-                          CString::new(string.clone()).unwrap().as_ptr(),
+                          CString::new(string.as_bytes()).unwrap().as_ptr(),
                           max);
         }
     };
@@ -269,7 +269,7 @@ pub fn host_dispatch(host: &mut Host,
     let copy_string = |string: &String, max: size_t| {
         unsafe {
             libc::strncpy(ptr as *mut c_char,
-                          CString::new(string.clone()).unwrap().as_ptr(),
+                          CString::new(string.as_bytes()).unwrap().as_ptr(),
                           max);
         }
     };
