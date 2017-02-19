@@ -316,11 +316,11 @@ mod tests {
 
     #[test]
     fn plugin_drop() {
-        static mut drop_test: bool = false;
+        static mut DROP_TEST: bool = false;
 
         impl Drop for TestPlugin {
             fn drop(&mut self) {
-                unsafe { drop_test = true; }
+                unsafe { DROP_TEST = true; }
             }
         }
 
@@ -330,7 +330,7 @@ mod tests {
         unsafe { (*aeffect).drop_plugin() };
 
         // Assert that the VST is shut down and dropped.
-        assert!(unsafe { drop_test });
+        assert!(unsafe { DROP_TEST });
     }
 
     #[test]
