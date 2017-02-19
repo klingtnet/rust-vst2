@@ -22,7 +22,7 @@ pub mod consts {
     pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
                                ('s' as i32) << 16 |
                                ('t' as i32) << 8  |
-                               ('P' as i32) << 0  ;
+                               ('P' as i32);
 }
 
 /// `VSTPluginMain` function signature.
